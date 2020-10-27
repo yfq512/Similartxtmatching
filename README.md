@@ -1,5 +1,5 @@
 ## 功能
-在本地文本数据集中匹配与目标文本相似度高于阈值的文本，文本相似度算法参考[https://github.com/yongzhuo/Macropodus]，基于Flask实现web服务，本地图像数据集支持热更新
+在本地文本数据集中匹配与目标文本相似度高于阈值的文本，文本相似度算法参考[https://github.com/yongzhuo/Macropodus] 基于Flask实现web服务，本地图像数据集支持热更新
 
 ## 环境
 不需要特殊环境
