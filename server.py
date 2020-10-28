@@ -104,11 +104,15 @@ def get_similar_txt():
         with open(temp_txt_path, 'w') as f:
             f.write(temp_txt_str)
             f.close()
-        uplimit_txtpaths = get_limit_txtpath(temp_txt_path, hash_strs, txtpaths)
-        os.remove(temp_txt_path)
-        if len(uplimit_txtpaths) == 0:
-            return {'sign':0, 'text':None} # notxt similar this txt by limit value
-        return {'sign':1, 'text':uplimit_txtpaths} # orgtxtpaths similar up limit value
+        try:
+            uplimit_txtpaths = get_limit_txtpath(temp_txt_path, hash_strs, txtpaths)
+            os.remove(temp_txt_path)
+            if len(uplimit_txtpaths) == 0:
+                return {'sign':0, 'text':None} # notxt similar this txt by limit value
+            return {'sign':1, 'text':uplimit_txtpaths} # orgtxtpaths similar up limit value
+        except:
+            os.remove(temp_txt_path)
+            return {'sign':-2, 'text':None} # len(str) is too short
     else:
         return "<h1>Get similar txt, please use post !</h1>"
 
@@ -121,16 +125,20 @@ def updatatxts():
         with open(txtpath, 'w') as f:
             f.write(str_add)
             f.close()
-        uplimit_txtpaths = get_limit_txtpath(txtpath, hash_strs, txtpaths)
-        if not len(uplimit_txtpaths) == 0:
-            os.remove(txtpath)
-            return {'sign':-1, 'savename':uplimit_txtpaths} # add txt similar up limit ,return similar up orgtxtpath_list
+        try:
+            uplimit_txtpaths = get_limit_txtpath(txtpath, hash_strs, txtpaths)
+            if not len(uplimit_txtpaths) == 0:
+                os.remove(txtpath)
+                return {'sign':-1, 'savename':uplimit_txtpaths} # add txt similar up limit ,return similar up orgtxtpath_list
 
-        if not os.path.exists(uptxtsign_path):
-            with open(uptxtsign_path,'w') as f:
-                f.write('sign')
-                f.close()
-        return {'sign':1, 'savename':randname} # add scuessful, return name in orgdata
+            if not os.path.exists(uptxtsign_path):
+                with open(uptxtsign_path,'w') as f:
+                    f.write('sign')
+                    f.close()
+            return {'sign':1, 'savename':randname} # add scuessful, return name in orgdata
+        except:
+            os.remove(txtpath)
+            return {'sign':-2, 'savename':None} # len(str) is too short
     else:
         return "<h1>Updata txt, please use pust !</h1>"
 
