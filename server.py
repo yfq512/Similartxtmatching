@@ -161,4 +161,5 @@ def _deltxts():
 if __name__ == "__main__":
     host = '0.0.0.0'
     port = '8879'
-    app.run(debug=True, host=host, port=port)
+    #app.run(debug=True, host=host, port=port)
+    app.run(debug=True, host=host, port=port, threaded=True)
