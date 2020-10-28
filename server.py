@@ -1,4 +1,4 @@
-import cv2, os, time, random, base64, shutil
+import cv2, os, time, random, base64, shutil, fcntl
 from flask import Flask,render_template,request
 from winnowing import winnowing
 from winnowing import comparison
@@ -150,8 +150,10 @@ def _deltxts():
         if not delname in orgtxt_list:
             return {'sign':-1, 'text':orgtxt_list} # failed,return orgtxt_list
         with open(deltxtsign_path,'a') as f:
+            fcntl.flock(f,fcntl.LOCK_EX)
             f.write(delname)
             f.write('\n')
+            fcntl.flock(f,fcntl.LOCK_UN)
             f.close()
         os.remove(os.path.join(orgtxtroot, delname))
         return {'sign':0, 'text':None} # del scuess
