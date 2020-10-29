@@ -119,6 +119,7 @@ def get_similar_txt():
 @app.route("/updatatxts",methods = ['GET', 'POST'])
 def updatatxts():
     if request.method == "POST":
+        sign_Mandatory_add = request.form.get('sign_add')
         str_add = request.form.get('addstr')
         randname = getRandomSet(20) + '.txt'
         txtpath = os.path.join(uptxtroot ,randname)
@@ -126,6 +127,12 @@ def updatatxts():
             f.write(str_add)
             f.close()
         try:
+            if sign_Mandatory_add = '1':
+                if not os.path.exists(uptxtsign_path):
+                    with open(uptxtsign_path,'w') as f:
+                        f.write('sign')
+                        f.close()
+                return {'sign':1, 'savename':randname}
             uplimit_txtpaths = get_limit_txtpath(txtpath, hash_strs, txtpaths)
             if not len(uplimit_txtpaths) == 0:
                 os.remove(txtpath)
@@ -159,6 +166,34 @@ def _deltxts():
         return {'sign':0, 'text':None} # del scuess
     else:
         return "<h1>Delete txt, please use pust !</h1>"
+
+@app.route("/com2txts",methods = ['GET', 'POST'])
+def com2txts():
+    if request.method == "POST":
+        str_1 = request.form.get('str_1')
+        str_2 = request.form.get('str_2')
+        randname1 = getRandomSet(20) + '.txt'
+        randname2 = getRandomSet(20) + '.txt'
+        with open(randname1, 'w') as f:
+            f.write(str_1)
+            f.close()
+        with open(randname2, 'w') as f:
+            f.write(str_2)
+            f.close()
+        try:
+            hash1 = winnowing(randname1)
+            hash2 = winnowing(randname2)
+            score = comparison(hash1, hash2)
+            os.remove(randname1)
+            os.remove(randname2)
+            return {'sign':1, 'score':score}
+        except:
+            os.remove(randname1)
+            os.remove(randname2)
+            return {'sign':-1, 'score':None}
+    else:
+        return "<h1>compare txt, please use post !</h1>"
+
 
 if __name__ == "__main__":
     host = '0.0.0.0'
