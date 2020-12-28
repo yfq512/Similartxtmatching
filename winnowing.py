@@ -71,11 +71,22 @@ def winnowing(txtpath):
 def comparison(fingerprint_1, fingerprint_2):
     count = 0
     size = min(len(fingerprint_1), len(fingerprint_2))
-    for i in fingerprint_1.values():
-        for j in fingerprint_2.values():
-            if i == j:
-                count += 1
-                break
+    #for i in fingerprint_1.values():
+    #    for j in fingerprint_2.values():
+    #        if i == j:
+    #            count += 1
+    #            break
+    hash1_list = fingerprint_1.values()
+    hash2_list = fingerprint_2.values()
+    if len(hash1_list) < len(hash2_list):
+        min_list = hash1_list
+        max_list = hash2_list
+    else:
+        min_list = hash2_list
+        max_list = hash1_list
+    for n in min_list:
+        if n in max_list:
+            count = count + 1
     return count / size
 
 if __name__ == '__main__':
