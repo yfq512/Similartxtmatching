@@ -64,7 +64,7 @@ def winnowing(txtpath):
                 min_index = j
         if (i + min_index) not in fingerprint.keys():
             fingerprint[i + min_index] = min_val
-    return fingerprint
+    return fingerprint.values()
 
 
 #比较两个文档的相似性
@@ -76,8 +76,8 @@ def comparison(fingerprint_1, fingerprint_2):
     #        if i == j:
     #            count += 1
     #            break
-    hash1_list = fingerprint_1.values()
-    hash2_list = fingerprint_2.values()
+    hash1_list = fingerprint_1
+    hash2_list = fingerprint_2
     if len(hash1_list) < len(hash2_list):
         min_list = hash1_list
         max_list = hash2_list
