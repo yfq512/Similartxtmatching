@@ -52,14 +52,12 @@ def get_limit_txtpath(dsttxtpath, _hash_strs, _txtpaths):
     t1 = time.time()
     dst_hash_str = winnowing(dsttxtpath)
     t2 = time.time()
-    print('aaaaaaaa',t2-t1)
     out_txtpaths = []
     scores = []
     print('len', len(_hash_strs))
     for n in range(len(_hash_strs)):
         t3 = time.time()
         temp_value = comparison(dst_hash_str, _hash_strs[n])
-        print('dadsadsadsas', time.time()-t3)
         #print('5444646464646464',temp_value)
         if temp_value > limit:
             id_title = _txtpaths[n]
@@ -79,7 +77,10 @@ def get_limit_txtpath(dsttxtpath, _hash_strs, _txtpaths):
             web_source = info_dst.get('source')
             scores.append(temp_value)
             out_txtpaths.append({'title':title, 'title_url':title_url, 'similar_sorce':similar_sorce, 'web_source':web_source})
-    return out_txtpaths, max(scores)
+    try:
+        return out_txtpaths, max(scores)
+    except:
+        return out_txtpaths, 0
 
 def get_list_index(org_list, new_list):
     nums_list = []
