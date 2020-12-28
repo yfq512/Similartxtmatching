@@ -1,4 +1,4 @@
-import cv2, os, time, random, base64, shutil, fcntl
+import cv2, os, time, random, base64, shutil, fcntl, json
 from flask import Flask,render_template,request
 from winnowing import winnowing
 from winnowing import comparison
@@ -15,8 +15,8 @@ def load_txt(orgtxtroot):
     hash_str_list = []
     txtpath_list = []
     # orgtxt_list = os.listdir(orgtxtroot)
-    for n_ in open(orgtxt_list):
-        n = n[:-1]
+    for n_ in open(orgtxtroot):
+        n = n_[:-1]
         # txtpath = os.path.join(orgtxtroot, n)
         txtpath = n.split(',')[0]
         try:
@@ -49,12 +49,18 @@ def uptxts(uptxtroot, orgtxtroot):
 
 def get_limit_txtpath(dsttxtpath, _hash_strs, _txtpaths):
     limit = 0.9
+    t1 = time.time()
     dst_hash_str = winnowing(dsttxtpath)
+    t2 = time.time()
+    print('aaaaaaaa',t2-t1)
     out_txtpaths = []
     scores = []
+    print('len', len(_hash_strs))
     for n in range(len(_hash_strs)):
+        t3 = time.time()
         temp_value = comparison(dst_hash_str, _hash_strs[n])
-        print('5444646464646464',temp_value)
+        print('dadsadsadsas', time.time()-t3)
+        #print('5444646464646464',temp_value)
         if temp_value > limit:
             id_title = _txtpaths[n]
             body = {
@@ -120,7 +126,7 @@ def get_similar_txt():
             deltxt_online(orgtxtroot, deltxtsign_path, hash_strs, txtpaths)
             os.remove(deltxtsign_path)
 
-        print(txtpaths)
+        #print(txtpaths)
         temp_txt_str = request.form.get('strtemp')
         rand_txt_name = getRandomSet(20) + '.txt'
         temp_txt_path = os.path.join(orgtxtroot, rand_txt_name)
@@ -163,7 +169,7 @@ def updatatxts():
         try:
             uplimit_txtpaths = get_limit_txtpath(txtpath, hash_strs, txtpaths)
             if len(uplimit_txtpaths) > 0: # 有信息
-                
+                pass   
             else: # 无信息
                 pass
         except: # 执行出错
