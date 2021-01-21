@@ -8,7 +8,7 @@ Created on Tue Jan 19 15:56:38 2021
 from elasticsearch import Elasticsearch
 from urllib3.connectionpool import xrange
 from flask import Flask,render_template,request
-import time, re, json
+import time, re, json, os
 from simhash import Simhash, SimhashIndex
 import numpy as np
 
@@ -38,6 +38,7 @@ log_loadsucces_path = 'loadsucces.log' # 记录加载成功的ID、和pushtime
 log_loadfailed_path = 'loadfailed.log' # 记录加载出错的counts
 save_txtnpy_path = 'txt_feature.npy' # 记录simhash特征，id+pushtime，便于在后期重新加载simhashIndex对象时再次提取特征，而浪费时间
 test_text_path = 'test_text.txt' # 记录前10个contens，用于测试
+txt_data_path = 'txt_data.npy'
 last_cnt = 15000000 # 20210119更新到1500w条
 
 ## server
@@ -91,12 +92,23 @@ def uptxt():
                                 publish_time = info_dict.get('publish_time') # 获取文章发表时间
                                 content = info_dict.get('content') # 获取正文本
                                 text_feature = Simhash(get_features(content))
+                                text_feature_value = text_feature.value
                                 text_key = _id + '---' + publish_time
                                 simhash_index.add(text_key, text_feature)
                                 with open(log_loadsucces_path, 'a') as f3:
                                     f3.write(text_key)
                                     f3.write('\n')
                                     f3.close
+                                # 存txtdata
+                                if os.path.exists(txt_data_path): # 存在
+                                    txtdata = np.load(txt_data_path, allow_pickle=True).item()
+                                    id_list = txtdata.get('id')
+                                    simhash_value_list = txtdata.get('simhash_value')
+                                    id_list.append(text_key)
+                                    simhash_value_list.append(text_feature_value)
+                                    np.save(txt_data_path,{'id':id_list, 'simhash_value':simhash_value_list})
+                                else: # 不存在，则新建
+                                    np.save(txt_data_path,{'id':[text_key],'simhash_value':[text_feature_value]})
                                     
                             except: # 加载失败
                                 with open(log_loadfailed_path,'a') as f2: # 仅记录条数
