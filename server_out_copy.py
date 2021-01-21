@@ -75,6 +75,8 @@ def uptxt():
                         f1.write(str(page*page_line) + ',' + str(count))
                         f1.write('\n')
                         f1.close()
+                    temp_id_list = []
+                    temp_simhash_value_list = []
                     for x in xrange(page,page+1):
                         rs = es.search(index=index,body={
                           "query":{
@@ -95,31 +97,34 @@ def uptxt():
                                 text_feature_value = text_feature.value
                                 text_key = _id + '---' + publish_time
                                 simhash_index.add(text_key, text_feature)
+                                temp_id_list.append(text_key)
+                                temp_simhash_value_list.append(text_feature_value)
                                 with open(log_loadsucces_path, 'a') as f3:
                                     f3.write(text_key)
                                     f3.write('\n')
                                     f3.close
-                                # 存txtdata
-                                if os.path.exists(txt_data_path): # 存在
-                                    txtdata = np.load(txt_data_path, allow_pickle=True).item()
-                                    id_list = txtdata.get('id')
-                                    simhash_value_list = txtdata.get('simhash_value')
-                                    id_list.append(text_key)
-                                    simhash_value_list.append(text_feature_value)
-                                    np.save(txt_data_path,{'id':id_list, 'simhash_value':simhash_value_list})
-                                else: # 不存在，则新建
-                                    np.save(txt_data_path,{'id':[text_key],'simhash_value':[text_feature_value]})
-                                    
                             except: # 加载失败
                                 with open(log_loadfailed_path,'a') as f2: # 仅记录条数
                                     f2.write(str(page*page_line+cnt1))
                                     f2.write('\n')
                                     f2.close()
                             cnt1 = cnt1 + 1
+                    # 存txtdata
+                    if os.path.exists(txt_data_path): # 存在
+                        txtdata = np.load(txt_data_path, allow_pickle=True).item()
+                        id_list = txtdata.get('id')
+                        simhash_value_list = txtdata.get('simhash_value')
+                        id_list.extend(temp_id_list)
+                        simhash_value_list.extend(temp_simhash_value_list)
+                        np.save(txt_data_path,{'id':id_list, 'simhash_value':simhash_value_list})
+                    else: # 不存在，则新建
+                        np.save(txt_data_path,{'id':temp_id_list,'simhash_value':temp_simhash_value_list})
+                                    
+
                     page = page + 1
                 
                 else:# 等待爬虫60s
-                    time.sleep(60)
+                    time.sleep(20)
         elif sign == 1: # 中断后加载
             pass
         else:
