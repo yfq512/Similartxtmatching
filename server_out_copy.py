@@ -119,7 +119,9 @@ def uptxt():
                         np.save(txt_data_path,{'id':id_list, 'simhash_value':simhash_value_list})
                     else: # 不存在，则新建
                         np.save(txt_data_path,{'id':temp_id_list,'simhash_value':temp_simhash_value_list})
-                                    
+                    simhash_index
+                    with open('simhash_index.pickle', 'wb') as simhash_save:
+                        pickle.dump(simhash_index, simhash_save)
 
                     page = page + 1
                 
