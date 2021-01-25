@@ -11,6 +11,7 @@ from flask import Flask,render_template,request
 import time, re, json, os
 from simhash import Simhash, SimhashIndex
 import numpy as np
+import pickle
 
 def get_features(s):
     width = 3
@@ -30,7 +31,7 @@ data = {
     'test_id': u'How are you? I Am fine. blar blar blar blar blar Thanks.',
 }
 objs = [(k, Simhash(get_features(v))) for k, v in data.items()]
-simhash_index = SimhashIndex(objs, k=3)
+simhash_index = SimhashIndex(objs, k=10)
 
 ## 记录log
 log_es_counts_path = 'es_counts.log' # 记录当前操作到es第N条数据，当重载数据时，初始化到此处，再自动add新数据(counts+id)
@@ -119,7 +120,6 @@ def uptxt():
                         np.save(txt_data_path,{'id':id_list, 'simhash_value':simhash_value_list})
                     else: # 不存在，则新建
                         np.save(txt_data_path,{'id':temp_id_list,'simhash_value':temp_simhash_value_list})
-                    simhash_index
                     with open('simhash_index.pickle', 'wb') as simhash_save:
                         pickle.dump(simhash_index, simhash_save)
 
