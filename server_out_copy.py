@@ -31,7 +31,7 @@ data = {
     'test_id': u'How are you? I Am fine. blar blar blar blar blar Thanks.',
 }
 objs = [(k, Simhash(get_features(v))) for k, v in data.items()]
-simhash_index = SimhashIndex(objs, k=10)
+simhash_index = SimhashIndex(objs, k=3)
 
 ## 记录log
 log_es_counts_path = 'es_counts.log' # 记录当前操作到es第N条数据，当重载数据时，初始化到此处，再自动add新数据(counts+id)
@@ -68,6 +68,7 @@ def uptxt():
         if sign == 0:
             page = 0
             page_line = 1000 # 每页条数
+            cnt2 = 0
             while True:
                 count = es.count(index=index)['count']
 
@@ -110,18 +111,21 @@ def uptxt():
                                     f2.write('\n')
                                     f2.close()
                             cnt1 = cnt1 + 1
+                            cnt2 = cnt2 + 1
                     # 存txtdata
-                    if os.path.exists(txt_data_path): # 存在
-                        txtdata = np.load(txt_data_path, allow_pickle=True).item()
-                        id_list = txtdata.get('id')
-                        simhash_value_list = txtdata.get('simhash_value')
-                        id_list.extend(temp_id_list)
-                        simhash_value_list.extend(temp_simhash_value_list)
-                        np.save(txt_data_path,{'id':id_list, 'simhash_value':simhash_value_list})
-                    else: # 不存在，则新建
-                        np.save(txt_data_path,{'id':temp_id_list,'simhash_value':temp_simhash_value_list})
-                    with open('simhash_index.pickle', 'wb') as simhash_save:
-                        pickle.dump(simhash_index, simhash_save)
+                    #if os.path.exists(txt_data_path): # 存在
+                    #    txtdata = np.load(txt_data_path, allow_pickle=True).item()
+                    #    id_list = txtdata.get('id')
+                    #    simhash_value_list = txtdata.get('simhash_value')
+                    #    id_list.extend(temp_id_list)
+                    #    simhash_value_list.extend(temp_simhash_value_list)
+                    #    np.save(txt_data_path,{'id':id_list, 'simhash_value':simhash_value_list})
+                    #else: # 不存在，则新建
+                    #    np.save(txt_data_path,{'id':temp_id_list,'simhash_value':temp_simhash_value_list})
+                    if cnt2 == 10000:
+                        with open('simhash_index.pickle', 'wb') as simhash_save:
+                            pickle.dump(simhash_index, simhash_save)
+                        cnt2 = 0
 
                     page = page + 1
                 
