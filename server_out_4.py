@@ -89,7 +89,10 @@ def compute_spread_value(app_id, jk_news_id, push_time, similar_info_list): # ap
     TracedsiteCount = len(list(set(web_source_list)))
     ## 获取评论数/阅读数/点赞数
     t3 = time.time()
-    read,collection,good,_ = get_news_info(app_id, jk_news_id)
+    try:
+        read,collection,good,_ = get_news_info(app_id, jk_news_id)
+    except:
+        read,collection,good,_ = 0,0,0,0
     print('从函数获得评论数时间',time.time()-t3)
     comments_2_sum = 0
     reads_2_sum = 0
