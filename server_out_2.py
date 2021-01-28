@@ -9,27 +9,29 @@ Created on Wed Jan 20 16:59:56 2021
 接受text文本，返回相似的id,title,titleurl,source,pushtime等
 """
 from elasticsearch import Elasticsearch
-from kafka import KafkaConsumer, TopicPartition
+# from kafka import KafkaConsumer, TopicPartition
 from urllib3.connectionpool import xrange
 from flask import Flask,request
 import time, json, re
 import numpy as np
 import requests
 from simhash import Simhash, SimhashIndex
+import pickle
+import fcntl
 
-## 初始化kafka队列，监控待监测文章
-consumer = KafkaConsumer(bootstrap_servers=['192.168.132.111:9092'], group_id='image_proccess')
-consumer.assign([
-    TopicPartition(topic="customer_news", partition=0)
-])
-consumer.seek(TopicPartition(topic="customer_news", partition=0), 0)
-"""
-for msg in consumer:
-    info = json.loads(msg.value)
-    info2 = info.get('data')[0]
-    create_time = info2.get('create_time')
-    print(create_time)
-"""
+# ## 初始化kafka队列，监控待监测文章
+# consumer = KafkaConsumer(bootstrap_servers=['192.168.132.111:9092'], group_id='image_proccess')
+# consumer.assign([
+#     TopicPartition(topic="customer_news", partition=0)
+# ])
+# consumer.seek(TopicPartition(topic="customer_news", partition=0), 0)
+# """
+# for msg in consumer:
+#     info = json.loads(msg.value)
+#     info2 = info.get('data')[0]
+#     create_time = info2.get('create_time')
+#     print(create_time)
+# """
 
 ## 初始化数据库，提供总数量查询
 es_host = "192.168.132.152"
@@ -88,19 +90,33 @@ def get_detais_byid(id_list, text):
 ## server
 app = Flask(__name__)
 
+@app.route("/upsimhash",methods = ['GET', 'POST'])
+def upsimhash():
+    if request.method == "POST":
+        cnt = 0
+        while True:
+            time.sleep(1)
+            cnt = cnt + 1
+            if cnt == 600:
+                f4 = open(simhash_index_path)
+                with open(simhash_index_path, 'rb') as f:
+                    simhash_index = pickle.load(f)
+                fcntl.flock(f4,fcntl.LOCK_UN) # 解除锁
+                cnt = 0
+    else:
+        pass
+
+
 @app.route("/txtsimilar",methods = ['GET', 'POST'])
 def txtsimilar():
     if request.method == "POST":
         text = request.form.get('strtemp')
         if not text:
             return json.dumps({'sign':-1, 'similar_value_max':0, 'similar_infos':[]})
-        data={'text':text}
-        r = requests.post('http://0.0.0.0:8880/matchtxt', data)
-        # print('================================')
-        # print('111',text)
-        # print('222',r.text)
-        info = json.loads(r.text)
-        result = info.get('result')
+        
+        # 核心代码
+        s1 = Simhash(get_features(text))
+        result = simhash_index.get_near_dups(s1)
         result = list(set(result)) # 去重复
         id_list = []
         for n in result:
@@ -123,6 +139,11 @@ def txtsimilar():
         pass
     
 if __name__ == "__main__":
+    simhash_index_path = 'simhash_index.pickle'
+    f3 = open(simhash_index_path)
+    with open(simhash_index_path, 'rb') as f:
+        simhash_index = pickle.load(f)
+    fcntl.flock(f3,fcntl.LOCK_UN) # 解除锁
     host = '0.0.0.0'
     port = '8881'
     app.run(debug=True, host=host, port=port, threaded=True)
