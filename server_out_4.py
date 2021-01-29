@@ -65,7 +65,7 @@ def get_webshare_count(similar_source_list, weights_list_org): # 相似列表，
 
 ## 计算new传播力
 def compute_spread_value(app_id, jk_news_id, push_time, similar_info_list): # app_id,自有文章id， 相似文章列表
-    log_err = 0.0000001
+    log_err = 2.7182818284
 
     ## 获取相似文章信息
     t1 = time.time()
@@ -142,11 +142,11 @@ def compute_spread_value(app_id, jk_news_id, push_time, similar_info_list): # ap
     print(Weight_list)
     print(Count_list)
     print('>>>>>>>>>', w_c_sum, TracedsiteCount)
-    M = (0.8*math.log(log_err+w_c_sum) + 0.2*math.log(log_err+5*TracedsiteCount+1))**2*10
+    M = (0.8*math.log(w_c_sum,log_err) + 0.2*math.log(5*TracedsiteCount+1,log_err))**2*10
     ## 计算C：重点频道刊登指数
-    C = (0.6*math.log(log_err+10*Channels+1) + 0.4*math.log(log_err+ChannelTime+1))**2*10
+    C = (0.6*math.log(10*Channels+1,log_err) + 0.4*math.log(ChannelTime+1,log_err))**2*10
     ## 计算R：网民反响指数
-    R = (0.4*math.log(log_err+10*Comments+1) + 0.4*math.log(log_err+Reads+1) + 0.1*math.log(log_err+Agrees+1))**2*10
+    R = (0.4*math.log(10*Comments+1,log_err) + 0.4*math.log(Reads+1,log_err) + 0.1*math.log(Agrees+1,log_err))**2*10
     spread_value = 0.3*M + 0.4*C + 0.3*R
     
     
