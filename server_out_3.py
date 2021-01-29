@@ -18,7 +18,7 @@ import requests
 import fcntl
 import re
 
-def select_fromsql(_id, pre_news_path='pre_news.npy'):
+def select_fromsql(_id, pre_news_path='../logs/pre_news.npy'):
     
     outlist = []
     # 加载本地缓存
@@ -86,7 +86,7 @@ def select_fromsql(_id, pre_news_path='pre_news.npy'):
         return _id
 
 if __name__ == "__main__":
-    pre_news_path = 'pre_news.npy'
+    pre_news_path = '../logs/pre_news.npy'
     id_ = '244234'
     # id_ = '307892'
     conn = pymysql.Connect(host='192.168.132.160', port=3306, user='root', password='Ca8thivwadFic#Python', db='fusion_media',charset='UTF8MB4')
@@ -112,8 +112,11 @@ if __name__ == "__main__":
             if not is_content:
                 continue
             data={'strtemp':content}
-            info = json.loads(requests.post('http://0.0.0.0:8881/txtsimilar', data).text)
-            info = info.get('similar_infos')
+            try:
+                info = json.loads(requests.post('http://0.0.0.0:8881/txtsimilar', data).text)
+                info = info.get('similar_infos')
+            except:
+                info = []
             similar_title_id_list = []
             if len(info) > 0:
                 print('开始插入')

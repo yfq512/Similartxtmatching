@@ -24,7 +24,7 @@ def get_features(s):
 def uptxt():
 
     page = 0
-    page_line = 100 # 每页条数
+    page_line = 1000 # 每页条数
     cnt2 = 0
     cnt1 = 0
     while True:
@@ -88,16 +88,21 @@ def uptxt():
                         fcntl.flock(f4,fcntl.LOCK_UN) # 解除锁
                     # 存对象
                     elif cnt2%10000==0 and cnt2<900001:
-                        f4 = open(simhash_index_path)
-                        fcntl.flock(f4,fcntl.LOCK_EX) # 获取锁
-                        with open(simhash_index_path, 'wb') as simhash_save:
-                            pickle.dump(simhash_index, simhash_save)
-                        fcntl.flock(f4,fcntl.LOCK_UN) # 解除锁
+                        try:
+                            f4 = open(simhash_index_path)
+                            fcntl.flock(f4,fcntl.LOCK_EX) # 获取锁
+                            with open(simhash_index_path, 'wb') as simhash_save:
+                                pickle.dump(simhash_index, simhash_save)
+                            fcntl.flock(f4,fcntl.LOCK_UN) # 解除锁
+                        except:
+                            with open(simhash_index_path, 'wb') as simhash_save:
+                                pickle.dump(simhash_index, simhash_save)
                     else:
                         pass
 
             page = page + 1
-        time.sleep(60)
+        else:
+            time.sleep(60)
                 
 
 if __name__ == "__main__":

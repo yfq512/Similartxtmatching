@@ -179,7 +179,7 @@ def compute_spread_value(app_id, jk_news_id, push_time, similar_info_list): # ap
 
 if __name__ == "__main__":
     
-    jk_news_path = 'pre_news.npy'
+    jk_news_path = '../logs/pre_news.npy'
     
     ## 连接数据库
     conn = pymysql.Connect(host='192.168.132.160', port=3306, user='root', password='Ca8thivwadFic#Python', db='fusion_media',charset='UTF8MB4')
@@ -203,8 +203,14 @@ if __name__ == "__main__":
             if not is_content:
                 continue
             data={'strtemp':jk_news_content}
-            info = json.loads(requests.post('http://0.0.0.0:8881/txtsimilar', data).text)
-            info = info.get('similar_infos') # 得到相似文章信息列表
+            try:
+                info = json.loads(requests.post('http://0.0.0.0:8881/txtsimilar', data).text)
+                info = info.get('similar_infos') # 得到相似文章信息列表
+            except:
+                info = []
+            # 限制相似文章个数6
+            if len(info) < 5:
+                continue
             compute_spread_value(app_id, jk_news_id, push_time, info) # app_id,自有文章id， 相似文章列表
         time.sleep(600)
 
