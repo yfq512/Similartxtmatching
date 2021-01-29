@@ -170,11 +170,20 @@ def compute_spread_value(app_id, jk_news_id, push_time, similar_info_list): # ap
                               comment_num, read_num, publish_time, 
                               customer_id, create_time, update_time) values('{}','{}','{}','{}','{}','{}','{}','{}','{}','{}')
     """.format(jk_news_id,spread_value,M,C,R,Reads,push_time,app_id,now_time,now_time)
+    sql11 = """update t_spread_news set spread_num='{}', media_num='{}', important_num='{}', 
+                              comment_num='{}', read_num='{}', publish_time='{}', 
+                              customer_id='{}', create_time='{}', update_time='{}' where news_id='{}' """.format(spread_value,M,C,R,Reads,push_time,app_id,now_time,now_time,jk_news_id)
     try:
         cursor.execute(sql)
         conn.commit()
+        print('插入成功')
     except:
-        pass
+        try:
+            cursor.execute(sql11)
+            conn.commit()
+            print('更新成功')
+        except:
+            print('插入或更新数据库失败')
 
 
 if __name__ == "__main__":
