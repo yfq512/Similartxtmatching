@@ -87,7 +87,12 @@ def select_fromsql(_id, pre_news_path='../logs/pre_news.npy'):
 
 if __name__ == "__main__":
     pre_news_path = '../logs/pre_news.npy'
-    id_ = '244234'
+    try:
+        os.system('news_id_load_count.log | tail -n 1 > read_news_id_load_count.txt')
+        f2 = open('read_news_id_load_count.txt','r')
+        id_ = f2.read.split('\n')[0]
+    except:
+        id_ = '244234'
     # id_ = '307892'
     conn = pymysql.Connect(host='192.168.132.160', port=3306, user='root', password='Ca8thivwadFic#Python', db='fusion_media',charset='UTF8MB4')
     cursor=conn.cursor(pymysql.cursors.DictCursor)
@@ -97,7 +102,9 @@ if __name__ == "__main__":
         cnt3 = 0 # 插入次数
         # 更新监控news列表
         id_ = select_fromsql(id_)
-        
+        with open('news_id_load_count.log') as f1:
+            f1.write(str(id_)+'\n')
+            f1.close()
         # 从本地加载并遍历监控news列表
         news = list(np.load(pre_news_path, allow_pickle=True))
         for news_i in news:

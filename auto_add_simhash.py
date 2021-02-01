@@ -23,10 +23,17 @@ def get_features(s):
     
 def uptxt():
 
-    page = 0
     page_line = 1000 # 每页条数
     cnt2 = 0
-    cnt1 = 0
+    try:
+        os.system('cat es_counts.log | tail -n 1 > read_es_count.txt')
+        f5 = open('read_es_count.txt','r')
+        cnt1 = int(f5.read().split(',')[0])
+        page = int(cnt1/1000)
+    except:
+        cnt1 = 0
+        page = 0
+    print('开始数量与页数：', cnt1, page)
     while True:
         count = es.count(index=index, body={
                           "query": {
@@ -131,5 +138,6 @@ if __name__ == "__main__":
     txt_data_path = 'txt_data.npy'
     simhash_index_path = 'simhash_index.pickle'
     last_cnt = 15000000 # 20210119更新到1500w条
+    print('更新simhash')
     uptxt()
 
