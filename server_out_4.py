@@ -60,7 +60,7 @@ def get_webshare_count(similar_source_list, weights_list_org): # 相似列表，
                 temp_cnt = temp_cnt + 1
             else:
                 pass
-        count_list.append(temp_cnt)
+        count_list.append(min(2, temp_cnt))
     return weight_list, count_list
 
 ## 计算new传播力
@@ -142,7 +142,7 @@ def compute_spread_value(app_id, jk_news_id, push_time, similar_info_list): # ap
     print(Weight_list)
     print(Count_list)
     print('>>>>>>>>>', w_c_sum, TracedsiteCount)
-    M = (0.8*math.log(w_c_sum,log_err) + 0.2*math.log(5*TracedsiteCount+1,log_err))**2*10
+    M = (0.8*math.log(w_c_sum+1,log_err) + 0.2*math.log(5*TracedsiteCount+1,log_err))**2*10
     ## 计算C：重点频道刊登指数
     C = (0.6*math.log(10*Channels+1,log_err) + 0.4*math.log(ChannelTime+1,log_err))**2*10
     ## 计算R：网民反响指数
