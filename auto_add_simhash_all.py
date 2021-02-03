@@ -50,9 +50,7 @@ def uptxt():
             for x in xrange(page,page+1):
                 rs = es.search(index=index,body={
                   "query": {
-                    "match": {
-                      "applicationid": "开屏"
-                    }
+                    "match_all": {}
                   },
                   "from":x*page_line,
                   "size":page_line
