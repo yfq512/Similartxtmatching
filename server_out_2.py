@@ -96,13 +96,17 @@ def upsimhash():
         cnt = 0
         while True:
             time.sleep(1)
-            cnt = cnt + 1
-            if cnt == 600:
+            if cnt%600==0:
                 f4 = open(simhash_index_path)
                 with open(simhash_index_path, 'rb') as f:
                     simhash_index = pickle.load(f)
                 fcntl.flock(f4,fcntl.LOCK_UN) # 解除锁
-                cnt = 0
+                now_time2 = time.strftime("%F") ##年月日格式
+                with open('update_simhash.log', 'a') as ff:
+                    ff.write('simihash 正常更新 ' + str(time.time())+'\n')
+                    ff.close()
+                fcntl.flock(f4,fcntl.LOCK_UN) # 解除锁
+            cnt = cnt + 1
     else:
         pass
 

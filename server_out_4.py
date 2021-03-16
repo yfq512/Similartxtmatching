@@ -47,8 +47,6 @@ def get_news_info(appid,id):
 
 ## 计算转载次数
 def get_webshare_count(similar_source_list, weights_list_org): # 相似列表，权重列表
-    print(similar_source_list)
-    print(weights_list_org)
     weight_list = []
     count_list = []
     for n in weights_list_org:
@@ -74,17 +72,14 @@ def compute_spread_value(app_id, jk_news_id, push_time, similar_info_list): # ap
     for similar_i in similar_info_list:
         web_source_list.append(similar_i.get('web_source'))
         similar_id_list.append(similar_i.get('title_id'))
-    print('获取相似文章信息',time.time()-t1)
     ## 网站权重
     ## 网站转载次数
     t2 = time.time()
     sql1="""SELECT name, weight FROM t_spread_important_channel"""
     cursor.execute(sql1)
     Weight_list_org=cursor.fetchall()
-    print('获取重点频道权重',time.time()-t2)
     t4 = time.time()
     Weight_list, Count_list = get_webshare_count(web_source_list, Weight_list_org)
-    print('解析重点频道信息',time.time()-t4)
     ## 参与转载的网站总数
     TracedsiteCount = len(list(set(web_source_list)))
     ## 获取评论数/阅读数/点赞数
@@ -93,7 +88,6 @@ def compute_spread_value(app_id, jk_news_id, push_time, similar_info_list): # ap
         read,collection,good,_ = get_news_info(app_id, jk_news_id)
     except:
         read,collection,good,_ = 0,0,0,0
-    print('从函数获得评论数时间',time.time()-t3)
     comments_2_sum = 0
     reads_2_sum = 0
     agrees_2_sum = 0
@@ -101,32 +95,38 @@ def compute_spread_value(app_id, jk_news_id, push_time, similar_info_list): # ap
     Channels_num = 0 # 重点频道刊登本文次数
     ChannelTime_sum = 0 # 重点频道刊登本文总时长
     for m in similar_id_list:
-        print('11111111',m)
         try:
-            sql2="""SELECT comment_num, read_num, good_num FROM ccwb_collected_kind_number WHERE news_id={}""".format(m)
+            sql2="""SELECT comment_num, read_num, good_num FROM ccwb_collected_kind_number WHERE news_id='{}'""".format(m)
             cursor.execute(sql2)
             c_r_a_nums_org=cursor.fetchone()
             if not c_r_a_nums_org:
-                comments_2_sum = comments_2_sum + int(c_r_a_nums_org.get('comment_num'))
-                reads_2_sum = reads_2_sum + int(c_r_a_nums_org.get('read_num'))
-                agrees_2_sum = agrees_2_sum + int(c_r_a_nums_org.get('good_num'))
+                try:
+                    comments_2_sum = comments_2_sum + int(c_r_a_nums_org.get('comment_num'))
+                except:
+                    pass
+                try:
+                    reads_2_sum = reads_2_sum + int(c_r_a_nums_org.get('read_num'))
+                except:
+                    pass
+                try:
+                    agrees_2_sum = agrees_2_sum + int(c_r_a_nums_org.get('good_num'))
+                except:
+                    pass
             print('爬虫评论数生效')
         except:
-            pass
-        else:
-            pass
+            print('从ccwb_collected_kind_number获取数据：评论数，阅读数，点赞数失败')
         try:
-            sql3 = """SELECT publish_hour FROM t_spread_important_channel_news WHERE news_id={}""".format(m)
+            sql3 = """SELECT * FROM t_spread_important_channel_news WHERE news_id='{}'""".format(m)
             cursor.execute(sql3)
             important_nums_org=cursor.fetchone()
             if not important_nums_org:
+                if important_nums_org==None:
+                    continue
                 Channels_num = Channels_num + 1
                 ChannelTime_sum = ChannelTime_sum + int(important_nums_org.get('publish_hour')) # 单位：分钟
             print('爬虫刊登时常生效')
         except:
-            pass
-        else:
-            pass
+            print('从t_spread_important_channel_news获取：刊登时常失败')
     Comments = comments_2_sum
     Reads = int(read) + reads_2_sum
     Agrees = int(good) + agrees_2_sum
@@ -139,9 +139,6 @@ def compute_spread_value(app_id, jk_news_id, push_time, similar_info_list): # ap
     w_c_sum = 0
     for n in xrange(len(Weight_list)):
         w_c_sum = w_c_sum + Weight_list[n]*Count_list[n]
-    print(Weight_list)
-    print(Count_list)
-    print('>>>>>>>>>', w_c_sum, TracedsiteCount)
     M = (0.8*math.log(w_c_sum+1,log_err) + 0.2*math.log(5*TracedsiteCount+1,log_err))**2*10
     ## 计算C：重点频道刊登指数
     C = (0.6*math.log(10*Channels+1,log_err) + 0.4*math.log(ChannelTime+1,log_err))**2*10
@@ -163,27 +160,34 @@ def compute_spread_value(app_id, jk_news_id, push_time, similar_info_list): # ap
       `customer_id` : '县融id',
       `create_time` : '创建时间',
       `update_time` :'最后更新时间',
+      'good_num':'点赞数',
+      'review_num':'评论数'
     '''
+    good_num = Agrees
+    print('>>>>>>', good_num,type(good_num))
+    review_num = Comments
     now_time = time.strftime("%F %H:%M:%S") ##24小时格式
     sql = """
     insert into t_spread_news(news_id, spread_num, media_num, important_num, 
                               comment_num, read_num, publish_time, 
-                              customer_id, create_time, update_time) values('{}','{}','{}','{}','{}','{}','{}','{}','{}','{}')
-    """.format(jk_news_id,spread_value,M,C,R,Reads,push_time,app_id,now_time,now_time)
+                              customer_id, create_time, update_time, good_num, review_num) values('{}','{}','{}','{}','{}','{}','{}','{}',now(),now(),'{}','{}')
+    """.format(jk_news_id,spread_value,M,C,R,Reads,push_time,app_id,good_num,review_num)
     sql11 = """update t_spread_news set spread_num='{}', media_num='{}', important_num='{}', 
                               comment_num='{}', read_num='{}', publish_time='{}', 
-                              customer_id='{}', create_time='{}', update_time='{}' where news_id='{}' """.format(spread_value,M,C,R,Reads,push_time,app_id,now_time,now_time,jk_news_id)
+                              customer_id='{}', update_time=now(), good_num='{}', review_num='{}' where news_id='{}' """.format(spread_value,M,C,R,Reads,push_time,app_id,good_num,review_num,jk_news_id)
     try:
         cursor.execute(sql)
         conn.commit()
-        print('插入成功')
+        print('插入成功',jk_news_id)
     except:
+        conn.rollback()
         try:
             cursor.execute(sql11)
             conn.commit()
-            print('更新成功')
+            print('更新成功',jk_news_id)
         except:
-            print('插入或更新数据库失败')
+            conn.rollback()
+            print('插入或更新数据库失败',jk_news_id)
 
 
 if __name__ == "__main__":
@@ -197,6 +201,7 @@ if __name__ == "__main__":
     while True:
         ## 获取被监控news
         jk_news = get_jk_news(jk_news_path)
+        print('获取监控新闻成功', len(jk_news))
         ## 计算new的传播力，并写入数据
         for jk_news_i in jk_news:
             jk_news_id = jk_news_i.get('news_id')
@@ -218,7 +223,7 @@ if __name__ == "__main__":
             except:
                 info = []
             # 限制相似文章个数6
-            if len(info) < 5:
+            if len(info) == 0:
                 continue
             compute_spread_value(app_id, jk_news_id, push_time, info) # app_id,自有文章id， 相似文章列表
         time.sleep(600)

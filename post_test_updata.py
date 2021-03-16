@@ -6,6 +6,5 @@ import json
 
 t1 = time.time()
 s = requests
-data={'sign':0}
 #r = s.post('http://192.168.132.151:8879/txtsimilar', data)
-r = s.post('http://0.0.0.0:8880/uptxt', data)
+r = s.post('http://0.0.0.0:8881/upsimhash')

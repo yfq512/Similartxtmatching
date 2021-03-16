@@ -102,7 +102,7 @@ if __name__ == "__main__":
         cnt3 = 0 # 插入次数
         # 更新监控news列表
         id_ = select_fromsql(id_)
-        with open('news_id_load_count.log') as f1:
+        with open('news_id_load_count.log','a') as f1:
             f1.write(str(id_)+'\n')
             f1.close()
         # 从本地加载并遍历监控news列表
@@ -131,7 +131,7 @@ if __name__ == "__main__":
             for similar_title in info:
                 title = similar_title.get('title')
                 # print('================================')
-                print('11111111111',content,jk_news_id)
+                #print('11111111111',content,jk_news_id)
                 
                 temp_similar_title_id = similar_title.get('title_id')
                 print('222222222222',title,temp_similar_title_id)
@@ -139,21 +139,33 @@ if __name__ == "__main__":
                 web_source = similar_title.get('web_source')
                 pushtime = similar_title.get('pushtime')
                 source_url = similar_title.get('title_url')
+                create_time = time.strftime("%F %H:%M:%S") ##24小时格式
+                update_time = time.strftime("%F %H:%M:%S") ##24小时格式
                 # print('dasdsa',web_source,pushtime)
                 # 插入数据库
                 sql = """
-                insert into t_spread_similar_news(news_id, spread_news_id, similarity,source,source_url,publish_time) values('{}', '{}', {},'{}','{}','{}')
+                insert into t_spread_similar_news(news_id, spread_news_id, similarity,source,source_url,publish_time, create_time, update_time) values('{}', '{}', {},'{}','{}','{}',now(), now())
                 """.format(jk_news_id,temp_similar_title_id,temp_similar_score,web_source,source_url,pushtime)
                 try:
-                    # print(sql)
+                # print(sql)
                     cursor.execute(sql)
                     conn.commit()
                     cnt3 = cnt3 + 1
+                    print('插入成功')
                 except Exception as e:
-                    pass
+                    conn.rollback()
+                    try:
+                        sql1 = """
+                        update t_spread_similar_news set similarity='{}',source='{}',source_url='{}',publish_time='{}',update_time=now() where news_id='{}' and spread_news_id='{}'
+                        """.format(temp_similar_score,web_source,source_url,pushtime, jk_news_id, temp_similar_title_id)
+                        cursor.execute(sql1)
+                        conn.commit()
+                        cnt3 = cnt3 + 1
+                        print('更新成功')
+                    except:
+                        conn.rollback()
+                        print('更新失败')
 
-            # print(content)
-            # break
         print('本次更新耗时：(s)', time.time()-t1)
         print('本次更新插入数据条数：',cnt3)
         print(id_)
