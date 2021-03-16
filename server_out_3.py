@@ -94,7 +94,7 @@ if __name__ == "__main__":
     except:
         id_ = '244234'
     # id_ = '307892'
-    conn = pymysql.Connect(host='192.168.132.160', port=3306, user='root', password='Ca8thivwadFic#Python', db='fusion_media',charset='UTF8MB4')
+    conn = pymysql.Connect(host='192.168.132.168', port=4000, user='root', password='ccwb@2021)#)#', db='fusion_media',charset='UTF8MB4')
     cursor=conn.cursor(pymysql.cursors.DictCursor)
     
     while True:
