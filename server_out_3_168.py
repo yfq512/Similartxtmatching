@@ -39,6 +39,7 @@ def select_fromsql(publish_time_, pre_news_path='../logs/pre_news_168.npy'):
         FROM
          t_province_news news LEFT JOIN t_province_news_content cont on news.item_id = cont.item_id and news.source_id=cont.source_id
         WHERE
+      news.news_status = 1 and 
       publish_time  > {}
     """.format(publish_time_)
     
@@ -163,7 +164,7 @@ if __name__ == "__main__":
 
         print('本次更新耗时：(s)', time.time()-t1)
         print('本次更新插入数据条数：',cnt3)
-        print(id_)
+        print(publish_time_)
         time.sleep(600)
     cursor.close()
     conn.close()

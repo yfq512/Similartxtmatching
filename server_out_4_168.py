@@ -146,7 +146,7 @@ def compute_spread_value(app_id, jk_news_id, push_time, similar_info_list): # ap
     R = (0.4*math.log(10*Comments+1,log_err) + 0.4*math.log(Reads+1,log_err) + 0.1*math.log(Agrees+1,log_err))**2*10
     spread_value = 0.3*M + 0.4*C + 0.3*R
     
-    a + '2'
+    'a' + 1
     # 写传播力到数据库
     '''
       `news_id` : '新闻ID',
