@@ -100,7 +100,6 @@ if __name__ == "__main__":
         with open('news_id_load_count_168.log','a') as f1:
             f1.write(str(publish_time_)+'\n')
             f1.close()
-        'a' + 1
         # 从本地加载并遍历监控news列表
         news = list(np.load(pre_news_path, allow_pickle=True))
         for news_i in news:

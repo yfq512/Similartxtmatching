@@ -80,14 +80,17 @@ def compute_spread_value(app_id, jk_news_id, push_time, similar_info_list): # ap
     Weight_list_org=cursor.fetchall()
     t4 = time.time()
     Weight_list, Count_list = get_webshare_count(web_source_list, Weight_list_org)
+    print('获取权重参数成功',Weight_list, Count_list)
     ## 参与转载的网站总数
     TracedsiteCount = len(list(set(web_source_list)))
     ## 获取评论数/阅读数/点赞数
     t3 = time.time()
     try:
         read,collection,good,_ = get_news_info(app_id, jk_news_id)
+        print('从函数获取评论数成功',read,collection,good)
     except:
         read,collection,good,_ = 0,0,0,0
+        print('从函数获取评论数失败')
     comments_2_sum = 0
     reads_2_sum = 0
     agrees_2_sum = 0
@@ -112,7 +115,7 @@ def compute_spread_value(app_id, jk_news_id, push_time, similar_info_list): # ap
                     agrees_2_sum = agrees_2_sum + int(c_r_a_nums_org.get('good_num'))
                 except:
                     pass
-            print('爬虫评论数生效')
+            print('爬虫评论数生效',comments_2_sum,reads_2_sum,agrees_2_sum)
         except:
             print('从ccwb_collected_kind_number获取数据：评论数，阅读数，点赞数失败')
         try:
@@ -124,7 +127,7 @@ def compute_spread_value(app_id, jk_news_id, push_time, similar_info_list): # ap
                     continue
                 Channels_num = Channels_num + 1
                 ChannelTime_sum = ChannelTime_sum + int(important_nums_org.get('publish_hour')) # 单位：分钟
-            print('爬虫刊登时常生效')
+            print('爬虫刊登时常生效', ChannelTime_sum)
         except:
             print('从t_spread_important_channel_news获取：刊登时常失败')
     Comments = comments_2_sum
