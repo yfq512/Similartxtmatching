@@ -19,7 +19,7 @@ import fcntl
 import re
 
 def select_fromsql(_id, pre_news_path='../logs/pre_news.npy'):
-    
+    _id=0
     outlist = []
     # 加载本地缓存
     if os.path.exists(pre_news_path):
@@ -94,7 +94,7 @@ if __name__ == "__main__":
     except:
         id_ = '244234'
     # id_ = '307892'
-    conn = pymysql.Connect(host='192.168.132.168', port=4000, user='root', password='ccwb@2021)#)#', db='fusion_media',charset='UTF8MB4')
+    conn = pymysql.Connect(host='192.168.132.168', port=4000, user='root', password='ccwb@2021)#)#z', db='fusion_media',charset='UTF8MB4')
     cursor=conn.cursor(pymysql.cursors.DictCursor)
     
     while True:
@@ -102,6 +102,7 @@ if __name__ == "__main__":
         cnt3 = 0 # 插入次数
         # 更新监控news列表
         id_ = select_fromsql(id_)
+        'a0'+1
         with open('news_id_load_count.log','a') as f1:
             f1.write(str(id_)+'\n')
             f1.close()

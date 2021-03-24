@@ -180,7 +180,6 @@ def compute_spread_value(app_id, jk_news_id, push_time, similar_info_list): # ap
         conn.commit()
         print('插入成功',jk_news_id)
     except:
-        conn.rollback()
         try:
             cursor.execute(sql11)
             conn.commit()
